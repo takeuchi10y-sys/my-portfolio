@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Profile {
+  id          Int      @id @default(autoincrement())
+  name        String                                 // Yumiko Takeuchi
+  title       String                                 // Full Stack Engineer (Candidate)
+  past        String                                 // 過去
+  present     String                                 // 現在
+  future      String                                 // 未来
+  avatarUrl   String   @default("/profile.jpg")      // 💡 画面の画像パスに合わせました
+  skills      String[]
+  projects    String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
