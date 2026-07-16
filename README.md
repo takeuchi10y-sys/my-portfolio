@@ -1,79 +1,113 @@
-# Yumiko_section_6_5
+# my-portfolio（ポートフォリオサイト）
 
-# ポートフォリオサイト（管理機能付き）設計書・開発実績
+## 📝 概要
 
-本リポジトリは、管理者用ログイン機能を備え、Docker上のPostgreSQLデータベースおよびPrisma ORM、Express APIを連携させたフルスタックなポートフォリオサイトの開発プロジェクトです。
+このリポジトリは、**Next.js（フロント）＋ Express（バックエンド）＋ Prisma（ORM）＋ PostgreSQL（DB）＋ Firebase（認証）** を組み合わせて構築した、管理機能付きポートフォリオサイトです。
 
----
+- プロフィール表示
+- 制作実績一覧
+- 問い合わせフォーム
+- 管理者ログイン
+- 管理画面からのデータ編集
 
-## 1. 画面構成とアクセス権限
+など、ポートフォリオとして必要な機能をフルスタックで実装しています。
 
-| 画面名               | URL        | アクセス権限               | 備考                                              |
-| :------------------- | :--------- | :------------------------- | :------------------------------------------------ |
-| トップページ         | `/`        | 一般公開（誰でも可）       | プロフィール、実績一覧、スキル一覧を表示          |
-| コンタクトページ     | `/contact` | 一般公開（誰でも可）       | 問い合わせ入力フォーム                            |
-| 管理者ログインページ | `/login`   | 一般公開（誰でも可）       | 管理者認証フォーム                                |
-| 管理画面トップ       | `/admin`   | **管理者のみ（認証必須）** | 未認証アクセス時はフロント側でガードし404等で応答 |
+## ⚙️ 使用技術
 
----
+### フロントエンド
 
-## 2. データベース設計（Prisma Schema）
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Firebase Authentication
+- App Router 構成
 
-実際のデータ構造に合わせ、拡張性と画面への最適化を意識したデータモデリングを行っています。
+### バックエンド
 
-### Profile（プロフィールモデル）
+- Node.js / Express
+- Prisma ORM
+- PostgreSQL
+- Docker / docker-compose
 
-- `id`: Int (Primary Key / 自動連番)
-- `name`: String (氏名: "Yumiko Takeuchi" を保持)
-- `title`: String (肩書き)
-- `past`: String (過去の経歴・ストーリー)
-- `present`: String (現在の活動状況)
-- `future`: String (今後のビジョン・未来)
-- `avatarUrl`: String (プロフィール画像パス / デフォルト: `/profile.jpg`)
-- `skills`: String[] (習熟スキル一覧の配列保持)
-- `projects`: String[] (制作実績一覧の配列保持)
-- `createdAt`: DateTime (レコード作成日時)
-- `updatedAt`: DateTime (レコード最終更新日時)
+## 📁 ディレクトリ構成
 
----
+```
+my-portfolio/
+├── frontend/   # Next.js アプリ（UI・認証・問い合わせフォームなど）
+├── backend/    # Express API（プロフィール・実績データ取得）
+├── docker-compose.yml
+└── README.md
+```
 
-## 3. APIエンドポイント定義
+## 📄 主な機能
 
-| メソッド | エンドポイント  | 認証 | 役割                                                                                                                                                     |
-| :------- | :-------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET`    | `/api/profile`  | 不要 | **【本機能実装済み】** PostgreSQLより「Yumiko Takeuchi」のデータを動的に取得。データ不在時はMUST要件に準拠しステータス404、DBエラー時は500で安全に応答。 |
-| `GET`    | `/api/projects` | 不要 | フロントからの実績取得用インターフェース（モック構築済み）                                                                                               |
-| `POST`   | `/api/contact`  | 不要 | フロントからの問い合わせデータ受信用インターフェース（モック構築済み）                                                                                   |
+### 🔐 管理者ログイン（Firebase Auth）
 
----
+- Firebase Authentication を利用した安全なログイン機能
+- ログイン後のみ `/admin` にアクセス可能
 
-## 4. セキュリティ・環境変数方針
+### 📝 プロフィール・実績データの取得（Prisma + PostgreSQL）
 
-- Firebaseの各種Config、およびデータベースの接続情報（`DATABASE_URL`）は、決してGitHubにコミットしてはならない。
-- 環境変数ファイル（`.env`, `.env.local`）は、ルートおよび各ディレクトリの `.gitignore` によって完全追記除外を徹底する。
-- 過去にGitのインデックス（追跡対象）にキャッシュされてしまっていた `backend/.env` については、`git rm --cached` コマンドを用いて、ローカルのファイル実体を残したままGitの履歴からのみ完全に削除・駆除対応済み。
+- Express API からプロフィール情報を取得
+- Prisma ORM による型安全な DB 操作
+- DB エラー時の安全なレスポンス（404 / 500）
 
----
+### 📬 問い合わせフォーム
 
-## 5. 開発実績 / 実装済み機能
+- `/contact` から問い合わせ内容を送信
+- バックエンド API で受け取り（モック → 実装へ拡張可能）
 
-### 5-1. 【フロント】Firebase SDKの導入およびセキュリティ対策（Issue #5）
+### 🌐 レスポンシブ対応
 
-- **概要**: フロントエンドへのFirebase SDKの導入、および環境変数を用いた認証情報の秘匿化を実装。
-- **実施したこと**:
-  - `frontend` ディレクトリにて Firebase SDK をインストールし、初期化用共通ファイル（`frontend/lib/firebase.ts`）を作成。
-  - フロント直下に `.env.local` を作成し各種Config用の環境変数を定義。ルートの `.gitignore` で安全に隠蔽されていることを検証。
+- Tailwind CSS による軽量で柔軟な UI
+- PC / スマホ両対応
 
-### 5-2. 【フロント】Firebase Authを用いたログイン処理の実装（Issue #8）
+## 🧩 工夫したポイント
 
-- **概要**: 管理ボタン押下時に、Firebase Authのサインイン関数を呼び出すロキシックを構築。
-- **実施したこと**:
-  - `signInWithEmailAndPassword` を用いて、Firebaseコンソール側であらかじめ手動作成したテスト用管理者アカウントに対する認証ロジックを記述。
-  - ログイン成功時に、一般公開領域から管理画面（`/admin`）へとリダイレクトする処理を実装。
+- **Prisma のスキーマ設計**：プロフィール・実績データを柔軟に扱えるようにモデルを最適化
+- **Firebase Auth の安全な導入**：認証情報は `.env.local` に隠蔽し、GitHub に流出しないよう管理
+- **バックエンドの Docker 化**：PostgreSQL を Docker 上で構築し、環境差異をなくす
+- **CORS 設定の最適化**：フロント（localhost:3000）との通信を安全に許可
+- **App Router の活用**：Next.js 14 の最新構成でページ管理をシンプルに
 
-### 5-3. 【バックエンド】各画面用APIエンドポイントの構築（Issue #12 ➔ データベース実連携へ昇格）
+## 🛠 セットアップ方法（開発環境）
 
-- **概要**: DBなしのダミーデータ（モック版）を返すAPI通信口の構築を経て、本物のPostgreSQLデータベースとPrisma ORMを結合した実連携APIサーバーへとアップグレードを完了。
-- **実施したこと**:
-  - Expressサーバーに `cors` ミドルウェアを導入し、フロントエンド（`localhost:3000`）からのクロスオリジン通信を安全に許可。
-  - PrismaClientを用いて、PostgreSQL内のプロフィールデータを動的に取得しフロントに配信する堅牢なエンドポイント（`GET /api/profile`）を実装。
+### 1. 依存関係のインストール
+
+```bash
+cd frontend
+npm install
+
+cd ../backend
+npm install
+```
+
+### 2. Docker 起動
+
+```bash
+docker-compose up -d
+```
+
+### 3. Prisma マイグレーション
+
+```bash
+cd backend
+npx prisma migrate dev
+```
+
+### 4. フロント起動
+
+```bash
+cd frontend
+npm run dev
+```
+
+## 👤 作者
+
+**Yumiko Takeuchi**
+Web開発・UI設計・ポートフォリオ制作が好きです。
+
+## 🔗 リンク
+
+- GitHub リポジトリ
+- デプロイ後にサイトURLを追記予定
