@@ -109,5 +109,5 @@ Web開発・UI設計・ポートフォリオ制作が好きです。
 
 ## 🔗 リンク
 
-- GitHub リポジトリ
-- デプロイ後にサイトURLを追記予定
+- [GitHub リポジトリ](https://github.com/takeuchi10y-sys/my-portfolio)
+- [公開サイト](https://my-portfolio-nu-coral-95.vercel.app)
